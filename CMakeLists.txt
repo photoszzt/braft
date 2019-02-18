@@ -126,6 +126,12 @@ if(LEVELDB_WITH_SNAPPY)
 	)
 endif()
 
+if(PMEM)
+    set(DYNAMIC_LIB ${DYNAMIC_LIB}
+        pmemobj
+        )
+endif()
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(DYNAMIC_LIB ${DYNAMIC_LIB}
         pthread
@@ -164,13 +170,19 @@ foreach(PROTO ${BRAFT_PROTOS})
         ERROR_VARIABLE PROTO_ERROR
         RESULT_VARIABLE PROTO_RESULT
     )
-    if (${PROTO_RESULT} EQUAL 0) 
+    if (${PROTO_RESULT} EQUAL 0)
     else ()
         message (FATAL_ERROR "Fail to generate cpp of ${PROTO} : ${PROTO_ERROR}")
     endif()
 endforeach()
 
 file(GLOB_RECURSE BRAFT_SOURCES "${CMAKE_SOURCE_DIR}/src/braft/*.cpp")
+if(NOT PMEM)
+    message("try to get rid of pmem")
+    list(REMOVE_ITEM BRAFT_SOURCES "${CMAKE_SOURCE_DIR}/src/braft/pmem_raft_meta.cpp" "${CMAKE_SOURCE_DIR}/src/braft/pmem_log.cpp")
+    message(${BRAFT_SOURCES})
+endif()
+
 set(SOURCES
     ${BRAFT_SOURCES}
     ${PROTO_SRCS}
@@ -231,7 +243,7 @@ add_subdirectory(tools)
 
 file(COPY ${CMAKE_CURRENT_BINARY_DIR}/braft/
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/output/include/braft/
-        FILES_MATCHING 
+        FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"
         )
