@@ -39,26 +39,27 @@ int PmemLogStorage::init(ConfigurationManager* configuration_manager) {
         LOG(ERROR) << "Fail to create " << dir_path.value() << " : " << e;
         return -1;
     }
-    pool<PersistLog> pop;
+    pool<PersistentLog> pop;
     std::string path(_path);
     path.append("/");
     path.append(_s_log);
-    if (pool<PersistRaftMeta>::check(path, LAYOUT_NAME) == 1)
-        pop = pool<PersistLog>::open(path, LAYOUT_NAME);
+    if (pool<PersistentLog>::check(path, LAYOUT_NAME) == 1)
+        pop = pool<PersistentLog>::open(path, LAYOUT_NAME);
     else
-        pop = pool<PersistLog>::create(path, LAYOUT_NAME, PMEMOBJ_MIN_POOL * 10, 0666);
+        pop = pool<PersistentLog>::create(path, LAYOUT_NAME, PMEMOBJ_MIN_POOL * 10, 0666);
     _state = pop;
     _first_log_index.store(1);
     _last_log_index.store(0);
     return 0;
 }
 
-PersistentLog::~PersistLog() {
+PersistentLog::~PersistentLog() {
     log_entry_data->clear();
-    delete_persistent<list<LogEntry>>(log_entry_data);
+    delete_persistent<plist<LogEntry>>(log_entry_data);
 }
 
 LogEntry* PmemLogStorage::get_entry(const int64_t index) {
+    /*
     std::unique_lock<raft_mutex_t> lck(_mutex);
     if (index < _first_log_index.load(butil::memory_order_relaxed)
             || index > _last_log_index.load(butil::memory_order_relaxed)) {
@@ -70,9 +71,11 @@ LogEntry* PmemLogStorage::get_entry(const int64_t index) {
             << temp->id.index << " required_index:" << index;
     lck.unlock();
     return temp;
+    */
 }
 
 int64_t PmemLogStorage::get_term(const int64_t index) {
+    /*
     std::unique_lock<raft_mutex_t> lck(_mutex);
     if (index < _first_log_index.load(butil::memory_order_relaxed)
             || index > _last_log_index.load(butil::memory_order_relaxed)) {
@@ -84,9 +87,11 @@ int64_t PmemLogStorage::get_term(const int64_t index) {
     int64_t ret = temp->id.term;
     lck.unlock();
     return ret;
+    */
 }
 
 int PmemLogStorage::append_entry(const LogEntry* input_entry) {
+    /*
     std::unique_lock<raft_mutex_t> lck(_mutex);
     if (input_entry->id.index !=
             _last_log_index.load(butil::memory_order_relaxed) + 1) {
@@ -99,10 +104,12 @@ int PmemLogStorage::append_entry(const LogEntry* input_entry) {
     _log_entry_data.push_back(const_cast<LogEntry*>(input_entry));
     _last_log_index.fetch_add(1, butil::memory_order_relaxed);
     lck.unlock();
+    */
     return 0;
 }
 
 int PmemLogStorage::append_entries(const std::vector<LogEntry*>& entries) {
+    /*
     if (entries.empty()) {
         return 0;
     }
@@ -111,9 +118,11 @@ int PmemLogStorage::append_entries(const std::vector<LogEntry*>& entries) {
         append_entry(entry);
     }
     return entries.size();
+    */
 }
 
 int PmemLogStorage::truncate_prefix(const int64_t first_index_kept) {
+    /*
     std::deque<LogEntry*> popped;
     std::unique_lock<raft_mutex_t> lck(_mutex);
     while (!_log_entry_data.empty()) {
@@ -135,10 +144,12 @@ int PmemLogStorage::truncate_prefix(const int64_t first_index_kept) {
     for (size_t i = 0; i < popped.size(); ++i) {
         popped[i]->Release();
     }
+    */
     return 0;
 }
 
 int PmemLogStorage::truncate_suffix(const int64_t last_index_kept) {
+    /*
     std::deque<LogEntry*> popped;
     std::unique_lock<raft_mutex_t> lck(_mutex);
     while (!_log_entry_data.empty()) {
@@ -160,10 +171,12 @@ int PmemLogStorage::truncate_suffix(const int64_t last_index_kept) {
     for (size_t i = 0; i < popped.size(); ++i) {
         popped[i]->Release();
     }
+    */
     return 0;
 }
 
 int PmemLogStorage::reset(const int64_t next_log_index) {
+    /*
     if (next_log_index <= 0) {
         LOG(ERROR) << "Invalid next_log_index=" << next_log_index;
         return EINVAL;
@@ -182,6 +195,7 @@ int PmemLogStorage::reset(const int64_t next_log_index) {
     for (size_t i = 0; i < popped.size(); ++i) {
         popped[i]->Release();
     }
+    */
     return 0;
 }
 
