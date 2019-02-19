@@ -34,10 +34,14 @@
 
 namespace braft {
 
-struct PersistentLog {
-    pmem::obj::persistent_ptr<braft::plist<LogEntry>> log_entry_data;
-    ~PersistentLog();
+struct PersistentLogEntry {
+
 }
+
+struct PersistentLog {
+    pmem::obj::persistent_ptr<braft::plist<PersistentLogEntry>> log_entry_data;
+    ~PersistentLog();
+};
 
 class BAIDU_CACHELINE_ALIGNMENT PmemLogStorage : public LogStorage {
 public:
@@ -96,7 +100,7 @@ private:
     butil::atomic<int64_t> _first_log_index;
     butil::atomic<int64_t> _last_log_index;
     static const char* _s_log;
-    pmem::obj::pool<PersistLog> _state;
+    pmem::obj::pool<PersistentLog> _state;
 
     raft_mutex_t _mutex;
 };
