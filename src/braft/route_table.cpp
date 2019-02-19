@@ -80,7 +80,6 @@ public:
 
 private:
 friend struct DefaultSingletonTraits<RouteTable>;
-butil::AtExitManager at_exit_;
     RouteTable() {
         _map.Modify(init);
     }

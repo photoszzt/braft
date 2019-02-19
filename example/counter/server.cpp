@@ -168,7 +168,6 @@ public:
 
 private:
 friend class FetchAddClosure;
-butil::AtExitManager at_exit_;
 
     void redirect(CounterResponse* response) {
         response->set_success(false);
